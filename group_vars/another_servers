@@ -1,0 +1,6 @@
+---
+ansible_user        : odmen
+ansible_sudo_pass   : odmen
+environment         : test 
+owner               : Dmitrii Fazetdinov
+...

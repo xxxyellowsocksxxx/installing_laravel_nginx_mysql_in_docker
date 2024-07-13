@@ -1,0 +1,8 @@
+---
+- name: Install Docker on remote servers
+  hosts: staging_servers
+  become: yes
+
+  roles:
+    - {role: install_docker, when: ansible_system == "Linux"}
+...

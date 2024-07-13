@@ -1,0 +1,9 @@
+---
+- name: Setup Laravel Application
+  hosts: staging_servers
+  any_errors_fatal: true
+  become: yes
+
+  roles:
+    - {role: create_web_app_laravel, when: ansible_system == "Linux"} 
+...

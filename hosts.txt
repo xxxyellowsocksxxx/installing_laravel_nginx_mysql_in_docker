@@ -1,0 +1,10 @@
+
+[staging_servers]
+kali        	ansible_host=192.168.188.252  
+
+[another_servers]
+ubuntu_desktop  ansible_host=192.168.188.249  
+
+[ALL_LINUX_SERVERS:children]
+staging_servers
+another_servers

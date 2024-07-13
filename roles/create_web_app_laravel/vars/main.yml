@@ -1,0 +1,9 @@
+---
+# vars file for create_web_app_laravel
+db_distr: mysql
+db_host: db
+db_port: 3306
+db_name: laravel
+app_db_user: laraveluser
+app_db_password: laraveluser
+app_work_dir: /var/www/laravel-app

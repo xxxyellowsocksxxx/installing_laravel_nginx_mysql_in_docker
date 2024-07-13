@@ -1,0 +1,100 @@
+---
+# tasks file for create_web_app_laravel
+- name: Create application directory
+  file:
+    path: /home/{{ ansible_user }}/laravel-app
+    state: directory
+    mode: '0755'
+
+- name: Copy project source files
+  copy:
+    src: ./src/
+    dest: /home/{{ ansible_user }}
+    mode: '0755'
+
+      #- name: Run composer install to Docker
+      #  command: docker run --rm -v/home/{{ ansible_user }}/laravel-app:/app composer install
+      #  args:
+      #    chdir: /home/{{ ansible_user }}/laravel-app 
+
+- name: Ensure the correct ownership of the laravel-app directory
+  ansible.builtin.command:
+    cmd: chown -R {{ ansible_user }}:{{ ansible_user }} /home/{{ ansible_user }}/laravel-app
+  
+- name: Create Dockerfile
+  template:
+    src: Dockerfile.j2
+    dest: /home/{{ ansible_user }}/laravel-app/Dockerfile
+    mode: '0755'
+  
+- name: Create docker-compose.yml
+  template:
+    src: docker-compose.j2
+    dest: /home/{{ ansible_user }}/laravel-app/docker-compose.yml
+    mode: '0755'
+
+- name: Create nginx directory
+  file:
+    dest: /home/{{ ansible_user }}/laravel-app/nginx/conf.d
+    state: directory
+    mode: '0755'
+      
+- name: Create nginx.conf
+  template:
+    src: app.j2
+    dest: /home/{{ ansible_user }}/laravel-app/nginx/conf.d/app.conf
+    mode: '0755'
+
+- name: Create mysql directory
+  file:
+    dest: /home/{{ ansible_user }}/laravel-app/mysql
+    state: directory
+    mode: '0755'
+      
+- name: Create my.cnf
+  template:
+    src: my.j2
+    dest: /home/{{ ansible_user }}/laravel-app/mysql/my.cnf
+    mode: '0755'
+      
+- name: Create php directory
+  file:
+    path: /home/{{ ansible_user }}/laravel-app/php
+    state: directory
+    mode: '0755'
+
+- name: Create local.ini
+  template:
+    src: local.j2
+    dest: /home/{{ ansible_user }}/laravel-app/php/local.ini
+         
+- name: Set environment
+  template:
+    src: .env.j2
+    dest: /home/{{ ansible_user }}/laravel-app/.env
+
+- name: Change owner from 'root' to '{{ ansible_user }}'
+  command: chown -R {{ ansible_user }}:{{ ansible_user }} /home/{{ ansible_user }}/laravel-app 
+
+- name: Create and start containers
+  community.docker.docker_compose_v2:
+    project_src: /home/{{ ansible_user }}/laravel-app  
+  register: output
+
+- name: Make the file executable
+  shell: chmod +x run_migrate.sh
+  args:
+    chdir: /home/{{ ansible_user }}/laravel-app/
+
+      #- name: Ensure the correct ownership of the laravel-app directory
+      #  ansible.builtin.command:
+      #    cmd: chown -R {{ ansible_user }}:{{ ansible_user }} /home/{{ ansible_user }}/laravel-app
+  
+- name: Run script to make migrations
+  ansible.builtin.shell: sh /home/{{ ansible_user }}/laravel-app/run_migrate.sh
+
+
+- name: Show results
+  ansible.builtin.debug:
+    var: output 
+...
